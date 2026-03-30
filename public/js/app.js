@@ -1,5 +1,5 @@
 /**
- * Created by Hongcai Deng on 2015/12/29.
+ * Traduzido e Ajustado para BrightAds
  */
 
 $(function(){
@@ -12,8 +12,14 @@ $(function(){
   $customShortId = $('#customShortid');
   $shortId = $('#shortid');
   $customTheme = 'check';
-  $placeholder_old = '请等待分配临时邮箱';
-  $placeholder_new = '请输入不带后缀邮箱账号';
+  
+  // Alteração do Domínio: Ajuste aqui para o seu domínio principal
+  var fixedDomain = "brightads.com.br";
+  
+  // Traduções dos Placeholders
+  $placeholder_old = 'Aguardando atribuição de e-mail...';
+  $placeholder_new = 'Digite o nome do e-mail (sem o @)';
+  
   $customShortId.on('click',function() {
     var self = $(this);
     var editEnable = true;
@@ -29,24 +35,26 @@ $(function(){
       self.toggleClass('edit');
       $shortId.prop('placeholder',$placeholder_old);
       $mailUser = $shortId.val();
-      var mailaddress = $mailUser + '@' + location.hostname;
+      
+      // Ajuste: Usando o domínio fixo em vez de location.hostname
+      var mailaddress = $mailUser + '@' + fixedDomain;
       setMailAddress($mailUser);
       $shortId.val(mailaddress);
       window.location.reload();
     }
   });
   
-  
   $maillist = $('#maillist');
 
   $maillist.on('click', 'tr', function() {
     var mail = $(this).data('mail');
-    $('#mailcard .header').text(mail.headers.subject || '无主题');
+    // Tradução: "Sem Assunto"
+    $('#mailcard .header').text(mail.headers.subject || 'Sem Assunto');
     $('#mailcard .content:last').html(mail.html);
     $('#mailcard i').click(function() {
       $('#raw').modal('show');
     });
-    $('#raw .header').text('RAW');
+    $('#raw .header').text('CONTEÚDO ORIGINAL (RAW)');
     $('#raw .content').html($('<pre>').html($('<code>').addClass('language-json').html(JSON.stringify(mail, null, 2))));
     Prism.highlightAll();
   });
@@ -55,7 +63,8 @@ $(function(){
 
   var setMailAddress = function(id) {
     localStorage.setItem('shortid', id);
-    var mailaddress = id + '@' + location.hostname;
+    // Ajuste: Usando o domínio fixo aqui também
+    var mailaddress = id + '@' + fixedDomain;
     $('#shortid').val(mailaddress).parent().siblings('button').find('.mail').attr('data-clipboard-text', mailaddress);
   };
 
@@ -82,12 +91,12 @@ $(function(){
   socket.on('mail', function(mail) {
     if(('Notification' in window)) {
       if(Notification.permission === 'granted') {
-        new Notification('New mail from ' + mail.headers.from);
+        new Notification('Novo e-mail de: ' + mail.headers.from);
       }
       else if(Notification.permission !== 'denied') {
         Notification.requestPermission(function(permission) {
           if(permission === 'granted') {
-            new Notification('New mail from ' + mail.headers.from);
+            new Notification('Novo e-mail de: ' + mail.headers.from);
           }
         })
       }
@@ -95,7 +104,8 @@ $(function(){
     $tr = $('<tr>').data('mail', mail);
     $tr
       .append($('<td>').text(mail.headers.from))
-      .append($('<td>').text(mail.headers.subject || '无主题'))
+      // Tradução: "Sem Assunto"
+      .append($('<td>').text(mail.headers.subject || 'Sem Assunto'))
       .append($('<td>').text((new Date(mail.headers.date)).toLocaleTimeString()));
     $maillist.prepend($tr);
   });
